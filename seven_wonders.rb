@@ -7,6 +7,8 @@ Dotenv.load
 LOCATION_IQ_KEY = ENV['LoIQ_TOKEN']
 BASE_URL = "https://us1.locationiq.com/v1/search.php"
 
+class InvalidSearch < StandardError 
+end
 
 def get_location(search_term)
   url = BASE_URL
@@ -14,6 +16,9 @@ def get_location(search_term)
             key: LOCATION_IQ_KEY,
             format: "json" }
   response = HTTParty.get(url, query: query_items)
+  
+  raise InvalidSearch.new("Invalid search #{ response.code }") unless response.code != "200"
+  
   return {"#{search_term}" => {:lat => response.first["lat"], :lon => response.first["lon"]}}
 end
 
