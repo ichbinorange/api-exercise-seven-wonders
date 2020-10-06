@@ -17,7 +17,7 @@ def get_location(search_term)
             format: "json" }
   response = HTTParty.get(url, query: query_items)
   
-  raise InvalidSearch.new("Invalid search #{ response.code }") unless response.code != "200"
+  raise InvalidSearch.new("Invalid search #{ response.code }") if response.code != 200
   
   return {"#{search_term}" => {:lat => response.first["lat"], :lon => response.first["lon"]}}
 end
@@ -49,16 +49,21 @@ ap find_seven_wonders
 BASE_URL2 = 'https://us1.locationiq.com/v1/'
 
 def request_a_driving_directions(a_place, b_place)
-  url = BASE_URL2
+  sleep(0.5)
   a_coordination = get_location(a_place)
+  sleep(0.5)
   b_coordination = get_location(b_place)
-  query_items = { service: "directions",
-            profile: "driving",
-            coordinates: "#{a_coordination[a_place][:lon]}, #{a_coordination[a_place][:lat]}; #{b_coordination[b_place][:lon]}, #{b_coordination[b_place][:lat]}",
-            key: LOCATION_IQ_KEY}
+
+  service = "directions"
+  profile = "driving"
+  coordinates = "#{a_coordination[a_place][:lon]},#{a_coordination[a_place][:lat]};#{b_coordination[b_place][:lon]},#{b_coordination[b_place][:lat]}"
+  
+  url = BASE_URL2.concat("#{service}/#{profile}/#{coordinates}")
+
+  query_items = {key: LOCATION_IQ_KEY}
   response = HTTParty.get(url, query: query_items)
   
-  raise InvalidSearch.new("Invalid search #{ response.code }") unless response.code != "200"
+  raise InvalidSearch.new("Invalid search #{ response.code }") if response.code != 200
   
   return response
 end
@@ -78,8 +83,8 @@ def find_a_place(lat_info, lon_info)
     format: 'json'
   }
   response = HTTParty.get(url, query: query_items)
-  
-  raise InvalidSearch.new("Invalid search #{ response.code }") unless response.code != "200"
+
+  raise InvalidSearch.new("Invalid search #{ response.code }") if response.code != 200
   
   return response["display_name"]
 end
@@ -87,5 +92,6 @@ end
 plases_to_find = [{ lat: 38.8976998, lon: -77.0365534886228}, {lat: 48.4283182, lon: -123.3649533 }, { lat: 41.8902614, lon: 12.493087103595503}]
 
 plases_to_find.each do |place|
+  sleep(0.5)
   puts "#{ place[:lat] } & #{ place[:lon] } is \"#{ find_a_place(place[:lat], place[:lon]) }\""
 end
