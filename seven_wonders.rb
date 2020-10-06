@@ -5,13 +5,15 @@ require 'dotenv'
 Dotenv.load
 
 LOCATION_IQ_KEY = ENV['LoIQ_TOKEN']
-BASE_URL = "https://us1.locationiq.com/v1/search.php?key=#{LOCATION_IQ_KEY}"
+BASE_URL = "https://us1.locationiq.com/v1/search.php"
 
 
 def get_location(search_term)
-  url = BASE_URL.concat("&q=#{search_term}&format=json")
-  query = { q: search_term }
-  response = HTTParty.get(url, query)
+  url = BASE_URL
+  query_items = { q: search_term,
+            key: LOCATION_IQ_KEY,
+            format: "json" }
+  response = HTTParty.get(url, query: query_items)
   return {"#{search_term}" => {:lat => response.first["lat"], :lon => response.first["lon"]}}
 end
 
